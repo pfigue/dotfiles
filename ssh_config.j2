@@ -1,0 +1,15 @@
+ControlMaster auto
+ControlPath ~/.ssh/mux-%r@%h:%p
+ControlPersist 4h
+ServerAliveInterval 300
+ForwardAgent yes
+SendEnv EDITOR
+
+Host *.compute.amazonaws.com
+	IdentityFile FIXME
+	User pablo
+	ServerAliveInterval 10
+	StrictHostKeyChecking no
+	UserKnownHostsFile /dev/null
+	IPQoS lowdelay
+

@@ -1,0 +1,15 @@
+alias sagi="sudo apt-get install "
+alias sagu="sudo apt-get update && sudo apt-get upgrade"
+alias acs="apt-cache search"
+alias tstamp="date +'%Y-%m-%d %H:%M:%S'"
+alias automount='gconftool --type bool --set /apps/nautilus/preferences/media_automount '
+alias ack='ack-grep'
+alias nosudo='sudo -K'
+alias pw_soft='pwgen -AB01 8'
+alias pw_hard='pwgen -sync1 32'
+
+# Aliases for work
+if [ -f ~/.work_aliases ]; then
+  . ~/.work_aliases
+fi
+

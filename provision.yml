@@ -1,0 +1,246 @@
+---
+# Run this script with sudo, e.g:
+# sudo ansible-playbook provision.yml -i hosts --vault-password-file=./vault_pass.txt
+#
+# You may want to `sudo apt-get update` before.
+
+- hosts: localhost
+  connection: local
+  vars_files:
+    - ./vars.yml
+  tasks:
+
+    - name: Add Google APT Key
+      apt_key:
+        url: https://dl-ssl.google.com/linux/linux_signing_key.pub
+        state: present
+      sudo: yes
+
+    - name: Add Google APT for Chrome
+      apt_repository:
+        repo: 'deb http://dl.google.com/linux/chrome/deb/ stable main'
+        state: present
+        update_cache: yes
+      sudo: yes
+
+    - name: Add Docker APT Key
+      apt_key:
+        url: https://get.docker.io/gpg
+        state: present
+      sudo: yes
+
+    - name: Add Docker APT
+      apt_repository:
+        repo: 'deb http://get.docker.io/ubuntu docker main'
+        state: present
+        update_cache: yes
+      sudo: yes
+
+    # *utopic* comes from lsb_release -sc
+    # Also, "Users of 64-bit Ubuntu, should enable MultiArch if it isn't already enabled by running the command"
+    # sudo dpkg --add-architecture i386
+    - name: Add Skype APT
+      apt_repository:
+        repo: 'deb ttp://archive.canonical.com/ utopic partner'
+        state: present
+        update_cache: yes
+      sudo: yes
+
+# Install Vagrant from their deb pkg, not from Ubuntu
+
+    - name: Install packages
+      apt:
+        pkg: "{{ item }}"
+        state: latest
+      with_items:
+        - skype
+        - rbenv
+        - pv
+        - node
+        - npm
+        - virtualbox
+        - nast
+        - pv
+        - haskell-platform
+        - lxc-docker
+        - mercurial
+        - haveged
+        - gimp
+        - iotop
+        - postgresql-client-common
+        - smbclient
+        - python-pip
+        - python-dev
+        - python3-dev
+        - python3-venv
+        - bundler
+        - tcptraceroute
+        - nmap
+        - inkscape
+        - jq
+        - htop
+        - tree
+        - ack-grep
+        - ruby
+        - ruby-dev
+        - git
+        - curl
+        - tmux
+        - python-virtualenv
+        - unzip
+        - mplayer
+        - wireshark
+        - emacs
+        - evince
+        - unrar
+        - gzip
+        - unrar
+        - pwgen
+        - dia
+        - gcc
+        - gdb
+        - automake
+        - sqlite3
+        - build-essential
+        - openssh-server
+        - workrave
+        - workrave-data
+        - ec2-api-tools
+        - python-boto
+        - traceroute
+        - python-dev
+        - xchat
+        - mysql-client-core-5.6
+        - google-chrome-stable
+        #- ansible  # You may prefer to install `ansible` with `pip` to avoid the buggy 1.7.2 version.
+
+    - name: Push UFW config
+      template:
+        src: ufw.j2
+        dest: /etc/default/ufw
+        mode: 0644
+        owner: root
+        group: root
+      sudo: yes
+      notify: restart ufw
+
+    - name: Create pfigue user
+      # This user may be already created during installation,
+      # but we have to be sure about the attributes
+      user:
+        name: pfigue
+        comment: "pfigue"
+        createhome: yes
+        shell: /bin/bash
+        generate_ssh_key: yes
+        state: present
+
+    - name: Push SSH client config
+      template:
+        src: ssh_config.j2
+        dest: /home/pfigue/.ssh/config
+        mode: 0740
+        owner: pfigue
+        group: pfigue
+
+    - name: Push bashrc config
+      template:
+        src: bashrc.j2
+        dest: /home/pfigue/.bashrc
+        mode: 0740
+        owner: pfigue
+        group: pfigue
+
+    - name: "Push bash public aliases (in opposition to employer aliases)"
+      template:
+        src: bash_aliases.j2
+        dest: /home/pfigue/.bash_aliases
+        mode: 0740
+        owner: pfigue
+        group: pfigue
+
+    - name: "Prepare .vim/ directory"
+      file:
+        state: directory
+        name: /home/pfigue/.vim
+        mode: 0740
+        owner: pfigue
+        group: pfigue
+
+    - name: Push .vimrc
+      template:
+        src: vimrc.j2
+        dest: /home/pfigue/.vimrc
+        mode: 0740
+        owner: pfigue
+        group: pfigue
+
+    - name: "Prepare .vim/autoload/ directory"
+      file:
+        state: directory
+        name: /home/pfigue/.vim/autoload
+        mode: 0740
+        owner: pfigue
+        group: pfigue
+
+    - name: "Set autload/pathogen.vim"
+      get_url:
+        url: https://raw.githubusercontent.com/tpope/vim-pathogen/master/autoload/pathogen.vim
+        dest: /home/pfigue/.vim/autoload/pathogen.vim
+        mode: 0740
+        owner: pfigue
+        group: pfigue
+
+    - name: "Prepare .vim/bundle/ directory"
+      file:
+        state: directory
+        name: /home/pfigue/.vim/bundle
+        mode: 0740
+        owner: pfigue
+        group: pfigue
+
+    - name: "Clone vim modules: nerdtree"
+      git:
+        repo: https://github.com/scrooloose/nerdtree.git
+        dest: /home/pfigue/.vim/bundle/nerdtree
+
+    - name: "Clone vim modules: syntastic"
+      git:
+        repo: https://github.com/scrooloose/syntastic.git
+        dest: /home/pfigue/.vim/bundle/syntastic
+
+    - name: "Clone vim modules: pyflakes"
+      git:
+        repo: https://github.com/pyflakes/pyflakes.git
+        dest: /home/pfigue/.vim/bundle/pyflakes
+
+    - name: "Clone vim modules: fugitive"
+      git:
+        repo: https://github.com/tpope/vim-fugitive.git
+        dest: /home/pfigue/.vim/bundle/fugitive
+
+    - name: "Clone vim modules: solarized"
+      git:
+        repo: https://github.com/altercation/vim-colors-solarized.git
+        dest: /home/pfigue/.vim/bundle/solarized
+
+    - name: "Clone vim modules: gitgutter"
+      git:
+        repo: https://github.com/airblade/vim-gitgutter.git
+        dest: /home/pfigue/.vim/bundle/gitgutter
+
+    - name: "Clone vim modules: supertab"
+      git:
+        repo: https://github.com/ervandew/supertab.git
+        dest: /home/pfigue/.vim/bundle/supertab
+
+    - name: "Fix .vim/bundle/ permissions recursively"
+      file:
+        state: directory
+        recurse: yes
+        name: /home/pfigue/.vim/bundle
+        mode: 0740
+        owner: pfigue
+        group: pfigue
+
+

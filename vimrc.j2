@@ -1,0 +1,37 @@
+" Load pathogen
+call pathogen#infect()
+call pathogen#helptags()
+
+" syntax on
+filetype plugin on
+
+" Tabulation. See http://vim.wikia.com/wiki/Converting_tabs_to_spaces
+set tabstop=2
+set expandtab
+set shiftwidth=2
+
+" Powerline
+" python from powerline.vim import setup as powerline_setup
+" python powerline_setup()
+" python del powerline_setup
+set laststatus=2 " Always display the statusline in all windows
+"set noshowmode " Hide the default mode text (e.g. -- INSERT -- below the statusline)
+
+" NERDTree
+autocmd vimenter * if !argc() | NERDTree | endif
+
+" Markdown instead of modula2 syntax coloring for .md files
+autocmd BufNewFile,BufReadPost *.md set filetype=markdown
+
+" Used for indent-guides: set background=dark
+
+" Show line numbers
+set number
+
+" Erlang
+autocmd BufRead,BufNewFile *.erl,*.es.*.hrl,*.yaws,*.xrl set expandtab
+au BufNewFile,BufRead *.erl,*.es,*.hrl,*.yaws,*.xrl setf erlang
+
+" Avoid .swp files
+set noswapfile
+
