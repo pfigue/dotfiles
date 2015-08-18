@@ -6,56 +6,24 @@
 
 - hosts: localhost
   connection: local
-  vars_files:
-    - ./vars.yml
   tasks:
 
-    - name: Add Google APT Key
-      apt_key:
-        url: https://dl-ssl.google.com/linux/linux_signing_key.pub
-        state: present
-      sudo: yes
-
-    - name: Add Google APT for Chrome
-      apt_repository:
-        repo: 'deb http://dl.google.com/linux/chrome/deb/ stable main'
-        state: present
-        update_cache: yes
-      sudo: yes
-
-    - name: Add Docker APT Key
-      apt_key:
-        url: https://get.docker.io/gpg
-        state: present
-      sudo: yes
-
-    - name: Add Docker APT
-      apt_repository:
-        repo: 'deb http://get.docker.io/ubuntu docker main'
-        state: present
-        update_cache: yes
-      sudo: yes
-
-    # *utopic* comes from lsb_release -sc
-    # Also, "Users of 64-bit Ubuntu, should enable MultiArch if it isn't already enabled by running the command"
-    # sudo dpkg --add-architecture i386
-    - name: Add Skype APT
-      apt_repository:
-        repo: 'deb ttp://archive.canonical.com/ utopic partner'
-        state: present
-        update_cache: yes
-      sudo: yes
-
-# Install Vagrant from their deb pkg, not from Ubuntu
+  # Install Vagrant from their deb pkg, not from Ubuntu
+  # FIXME ~/bin dir
+  # FIXME install leiningen from wget script
 
     - name: Install packages
       apt:
         pkg: "{{ item }}"
         state: latest
       with_items:
+        - retext
+        - whois
+        - bridge-utils
+#        - libzmq3
+#        - libzmq3-dev
         - skype
         - rbenv
-        - pv
         - node
         - npm
         - virtualbox
@@ -64,8 +32,6 @@
         - haskell-platform
         - lxc-docker
         - mercurial
-        - haveged
-        - gimp
         - iotop
         - postgresql-client-common
         - smbclient
@@ -87,14 +53,8 @@
         - curl
         - tmux
         - python-virtualenv
-        - unzip
-        - mplayer
         - wireshark
         - emacs
-        - evince
-        - unrar
-        - gzip
-        - unrar
         - pwgen
         - dia
         - gcc
@@ -114,16 +74,6 @@
         - google-chrome-stable
         #- ansible  # You may prefer to install `ansible` with `pip` to avoid the buggy 1.7.2 version.
 
-    - name: Push UFW config
-      template:
-        src: ufw.j2
-        dest: /etc/default/ufw
-        mode: 0644
-        owner: root
-        group: root
-      sudo: yes
-      notify: restart ufw
-
     - name: Create pfigue user
       # This user may be already created during installation,
       # but we have to be sure about the attributes
@@ -135,7 +85,7 @@
         generate_ssh_key: yes
         state: present
 
-    - name: Push SSH client config
+    - name: "Push SSH client config (may need some manual adjustment)"
       template:
         src: ssh_config.j2
         dest: /home/pfigue/.ssh/config
@@ -243,4 +193,4 @@
         owner: pfigue
         group: pfigue
 
-
+  # FIXME push .pypirc file, which should be encrypted, due to credentials there.

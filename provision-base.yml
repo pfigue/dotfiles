@@ -1,0 +1,147 @@
+---
+# BASE PROVISIONING PLAYBOOK
+# This playbook set ups the most essential software and configuration
+# I use in my desktop/laptop systems.
+#
+# Tested with:
+#
+#   * Ubuntu 15.04 Vivid
+#   * Ubuntu Utopic?
+#
+# How to run this playbook?
+#
+#   sudo ansible-playbook provision.yml -i hosts --vault-password-file=./vault_pass.txt
+#
+# You may want to run this before:
+#
+#   sudo apt-get install git vim ansible tmux
+#   sudo apt-get update
+#   cd
+#   git clone https://github.com/pfigue/dotfiles.git
+#
+# to bootstrap the basics.
+
+- hosts: localhost
+  connection: local
+# Not used atm:
+#   vars_files:
+#     - ./vars.yml
+  tasks:
+
+    - name: Add Google APT Key
+      apt_key:
+        url: https://dl-ssl.google.com/linux/linux_signing_key.pub
+        state: present
+      sudo: yes
+
+    - name: Add Google APT for Chrome
+      apt_repository:
+        repo: 'deb http://dl.google.com/linux/chrome/deb/ stable main'
+        state: present
+        update_cache: yes
+      sudo: yes
+
+    - name: Add Docker APT Key
+      apt_key:
+        url: https://get.docker.io/gpg
+        state: present
+      sudo: yes
+
+    - name: Add Docker APT
+      apt_repository:
+        repo: 'deb http://get.docker.io/ubuntu docker main'
+        state: present
+        update_cache: yes
+      sudo: yes
+
+    # *utopic* or *vivid* comes from lsb_release -sc
+    # Also, "Users of 64-bit Ubuntu, should enable MultiArch if it isn't already enabled by running the command"
+    # sudo dpkg --add-architecture i386
+    # See e.g. http://tipsonubuntu.com/2015/03/24/install-skype-4-3-in-ubuntu-15-04/
+    - name: Add Skype APT
+      apt_repository:
+        repo: 'deb http://archive.canonical.com/ vivid partner'
+        state: present
+        update_cache: yes
+      sudo: yes
+
+# Install Vagrant from their deb pkg, not from Ubuntu
+
+    - name: Install packages
+      apt:
+        pkg: "{{ item }}"
+        state: latest
+      with_items:
+        #- skype
+        - vlc
+        - ubuntu-restricted-extras
+        - rbenv
+        - node
+        - npm
+        - virtualbox
+        - nast
+        - pv
+        - haskell-platform
+        - lxc-docker
+        - mercurial
+        - haveged
+        - gimp
+        - iotop
+        - postgresql-client-common
+        - smbclient
+        - python-pip
+        - python-dev
+        - python3-dev
+        - python3-venv
+        - bundler
+        - tcptraceroute
+        - nmap
+        - inkscape
+        - jq
+        - htop
+        - tree
+        - ack-grep
+        - ruby
+        - ruby-dev
+        - git
+        - curl
+        - tmux
+        - python-virtualenv
+        - unzip
+        - mplayer
+        - wireshark
+        - emacs
+        - evince
+        - unrar
+        - gzip
+        - unrar
+        - pwgen
+        - dia
+        - gcc
+        - gdb
+        - automake
+        - sqlite3
+        - build-essential
+        - openssh-server
+        - workrave
+        - workrave-data
+        - ec2-api-tools
+        - python-boto
+        - traceroute
+        - python-dev
+        - xchat
+        - mysql-client-core-5.6
+        - google-chrome-stable
+        #- ansible  # You may prefer to install `ansible` with `pip` to avoid the buggy 1.7.2 version.
+
+    - name: Push UFW config
+      template:
+        src: ufw.j2
+        dest: /etc/default/ufw
+        mode: 0644
+        owner: root
+        group: root
+      sudo: yes
+      notify: restart ufw
+
+
