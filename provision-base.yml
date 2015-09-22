@@ -41,11 +41,22 @@
         update_cache: yes
       sudo: yes
 
-    - name: Add Docker APT Key
-      apt_key:
-        url: https://get.docker.io/gpg
-        state: present
-      sudo: yes
+# FIXME install Docket APT key
+# Manually:
+#   apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 36A1D7869245C8950F966E92D8576A8BA88D21E9
+# This does not work:
+#    - name: Add Docker APT Key
+#      apt_key:
+#        url: 'https://get.docker.com/gpg'
+#        validate_certs: no
+#        state: present
+#      sudo: yes
+#      apt_key:
+#        keyserver: p80.pool.sks-keyservers.net:80
+#        id: 58118E89F3A912897C070ADBF76221572C52609D
+#        # url: https://get.docker.io/gpg
+#        state: present
+#      sudo: yes
 
     - name: Add Docker APT
       apt_repository:
@@ -72,16 +83,18 @@
         pkg: "{{ item }}"
         state: latest
       with_items:
+        - cmake
+        - unity-tweak-tool  # Ubuntu 14.04 at least, to tune desktop workspaces.
         #- skype
         - vlc
         - ubuntu-restricted-extras
         - rbenv
         - node
-        - npm
+        #- npm
         - virtualbox
         - nast
         - pv
-        - haskell-platform
+        #- haskell-platform
         - lxc-docker
         - mercurial
         - haveged
@@ -92,7 +105,8 @@
         - python-pip
         - python-dev
         - python3-dev
-        - python3-venv
+#python3-venv does not exist in ubuntu14.04
+        #- python3-venv
         - bundler
         - tcptraceroute
         - nmap
@@ -102,14 +116,14 @@
         - tree
         - ack-grep
         - ruby
-        - ruby-dev
+        #- ruby-dev
         - git
         - curl
         - tmux
         - python-virtualenv
         - unzip
         - mplayer
-        - wireshark
+        #- wireshark
         - emacs
         - evince
         - unrar
@@ -120,9 +134,9 @@
         - gcc
         - gdb
         - automake
-        - sqlite3
+        #- sqlite3
         - build-essential
-        - openssh-server
+        #- openssh-server
         - workrave
         - workrave-data
         - ec2-api-tools
@@ -132,6 +146,7 @@
         - xchat
         - mysql-client-core-5.6
         - google-chrome-stable
+        - acpi  # needed in ubuntu14.04
         #- ansible  # You may prefer to install `ansible` with `pip` to avoid the buggy 1.7.2 version.
 
     - name: Push UFW config
@@ -143,5 +158,4 @@
         group: root
       sudo: yes
       notify: restart ufw
-
 
