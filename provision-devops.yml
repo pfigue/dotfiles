@@ -17,6 +17,7 @@
         pkg: "{{ item }}"
         state: latest
       with_items:
+        - gnuplot
         - retext
         - whois
         - bridge-utils
